@@ -1,0 +1,41 @@
+version: "3"
+services:
+  mongo:
+    image: mongo:4.2
+    container_name: mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+
+  microservice1:
+    build: ./microservice1
+    container_name: microservice1
+    depends_on:
+      - mongo
+      - rabbitmq
+    environment:
+      - MONGODB_URL=mongodb://mongo:27017/nest
+      - RABBITMQ_URL=amqp://rabbitmq:5672
+    ports:
+      - "3000:3000"
+
+  microservice2:
+    build: ./microservice2
+    container_name: microservice2
+    depends_on:
+      - mongo
+      - rabbitmq
+    environment:
+      - MONGODB_URL=mongodb://mongo:27017/nest
+      - RABBITMQ_URL=amqp://rabbitmq:5672
+
+volumes:
+  mongo-data:
